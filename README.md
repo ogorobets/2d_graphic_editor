@@ -4,7 +4,7 @@
  
 <h2>Project description:</h2>
 <p>
-Application allows user draw circles using clicks of mouse. The radius of each circle is 2 centimeters. The UI is made of two buttons on the screen with label Left and Right. User can pan the screen (i.e. the coordinates should not change). The units used are in centimeters and the sizes should be roughly according to a 15" display. This should be written using HTML5 and plain Javascript.
+Application allows user to draw circles using clicks of mouse. The radius of each circle is 2 centimeters. The UI is made of two buttons on the screen with label Left and Right. User can pan the screen (i.e. the coordinates should not change). The units used are in centimeters and the sizes should be roughly according to a 15" display. This should be written using HTML5 and plain Javascript.
 </p>
 
 <p>
