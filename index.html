@@ -1,0 +1,96 @@
+<html>
+    <head>
+        <title>Simple 2D Editor</title>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <link rel="stylesheet" type="text/css" href="css/style.css">
+        <script type="text/javascript" src="js/app.js"></script>
+
+        <script id="vertex-shader" type="x-shader/x-vertex">
+            uniform vec2 u_resolution;
+            attribute vec2 a_position;
+
+            void main(void) {
+                vec2 axisShift = vec2(1.0, 1.0);
+                vec2 clipspace = a_position / u_resolution * 2.0 - axisShift;
+                gl_Position = vec4(clipspace * vec2(1, -1), 0, 1);
+            }
+        </script>
+
+        <script id="fragment-shader" type="x-shader/x-fragment">
+            precision mediump float;
+            uniform vec4 u_color;
+
+            void main(void) {
+                gl_FragColor = u_color;
+            }
+        </script>
+
+        <script type="text/javascript">  
+            function getPxPerCm() {
+                var div = document.createElement('div');
+                div.style.cssText = 'visibility: hidden; width: 1cm';
+                document.body.appendChild(div);
+                var pxPerCm = document.defaultView.getComputedStyle(div, null).getPropertyValue('width');
+                pxPerCm = parseFloat(pxPerCm);
+                div.parentNode.removeChild(div);
+                return pxPerCm;
+            }
+            function webGLStart() {
+                var pxPerCm = getPxPerCm();
+                var cicrleR = 2 * pxPerCm;
+                var width15InchScreenInCm = 34;
+                var height15InchScreenInCm = 19;
+                var canvasWidth = width15InchScreenInCm * pxPerCm;
+                var canvasHeight = height15InchScreenInCm * pxPerCm;
+                document.getElementById('canvas').style.cssText = 
+                    'width: ' + canvasWidth + '; height: ' + canvasHeight + ';';
+
+                var glScene = new GLScene();
+                var circleContainer = new CircleContainer(glScene);
+
+                var canvasEl = document.getElementById('canvas');
+                var fisrtCircleDrawn = false;
+                canvasEl.addEventListener('click', function (event) {
+                    var xCoordinate = event.offsetX - (canvasWidth/2 * (1.0 - circleContainer.getXShift()));
+                    var yCoordinate = event.offsetY;
+                    circleContainer.add(new CircleGlObject(xCoordinate, yCoordinate, cicrleR, fisrtCircleDrawn ? null : 'red'));
+                    var grpAmountEl = document.getElementById('grp-amount');
+                    circleContainer.draw();
+                    grpAmountEl.innerHTML = circleContainer.getNumCircleGrp();
+                    fisrtCircleDrawn = true;
+                    // console.log('count:', circleContainer.getNumCircleGrp());
+                });
+
+                var shiftLeftEl = document.getElementById("shift-left");
+                shiftLeftEl.addEventListener('click', function (event) {
+                    var xDeltaShift = -0.1;
+                    circleContainer.draw(xDeltaShift);
+                });
+
+                var shiftRightEl = document.getElementById("shift-right");
+                shiftRightEl.addEventListener('click', function (event) {
+                    var xDeltaShift = 0.1;
+                    circleContainer.draw(xDeltaShift);
+                });
+
+                var exportToJSONEl = document.getElementById("export-circles");
+                exportToJSONEl.addEventListener('click', function (event) {
+                    var fileParts = [circleContainer.toJSON()];
+                    var fileContentBlob = new Blob(fileParts, {type : 'text/html'}); 
+                    window.open(URL.createObjectURL(fileContentBlob));
+                });
+
+                
+            }
+        </script>
+    </head>
+    <body onload="webGLStart();">
+        <canvas id="canvas" width="500" height="500"></canvas>
+        <div class="nav-buttons-container">
+            <button id="shift-left">Left</button>
+            <button id="shift-right">Right</button>
+            <button id="export-circles">Export to JSON</button>
+            <div class="grp-amount-wrap">Amount of circle grps: <span id="grp-amount">0</span></div>
+        </div>
+    </body>
+</html>
